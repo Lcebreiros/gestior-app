@@ -3,8 +3,11 @@ package com.example.gestior.di
 import com.example.gestior.data.local.PreferencesManager
 import com.example.gestior.data.remote.TokenProvider
 import com.example.gestior.data.remote.api.AuthApi
+import com.example.gestior.data.remote.api.OrderApi
 import com.example.gestior.data.repository.AuthRepositoryImpl
+import com.example.gestior.data.repository.OrderRepositoryImpl
 import com.example.gestior.domain.repository.AuthRepository
+import com.example.gestior.domain.repository.OrderRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,5 +33,13 @@ object RepositoryModule {
         preferencesManager: PreferencesManager
     ): AuthRepository {
         return AuthRepositoryImpl(authApi, preferencesManager)
+    }
+
+    @Provides
+    @Singleton
+    fun provideOrderRepository(
+        orderApi: OrderApi
+    ): OrderRepository {
+        return OrderRepositoryImpl(orderApi)
     }
 }

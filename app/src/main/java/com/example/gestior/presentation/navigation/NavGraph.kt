@@ -8,6 +8,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.gestior.presentation.screens.auth.LoginScreen
 import com.example.gestior.presentation.screens.dashboard.DashboardScreen
+import com.example.gestior.presentation.screens.orders.CreateOrderScreen
+import com.example.gestior.presentation.screens.orders.OrderDetailScreen
+import com.example.gestior.presentation.screens.orders.OrdersListScreen
+import com.example.gestior.util.Constants
 
 @Composable
 fun NavGraph(
@@ -61,7 +65,35 @@ fun NavGraph(
 
         // Orders
         composable(route = Screen.Orders.route) {
-            // TODO: OrdersScreen
+            OrdersListScreen(
+                onNavigateBack = { navController.navigateUp() },
+                onNavigateToDetail = { orderId ->
+                    navController.navigate(Constants.Routes.orderDetail(orderId))
+                },
+                onNavigateToCreate = {
+                    navController.navigate(Screen.OrderCreate.route)
+                }
+            )
+        }
+
+        composable(
+            route = Screen.OrderDetail.route,
+            arguments = listOf(navArgument("orderId") { type = NavType.IntType })
+        ) {
+            OrderDetailScreen(
+                onNavigateBack = { navController.navigateUp() }
+            )
+        }
+
+        composable(route = Screen.OrderCreate.route) {
+            CreateOrderScreen(
+                onNavigateBack = { navController.navigateUp() },
+                onOrderCreated = { orderId ->
+                    navController.navigate(Constants.Routes.orderDetail(orderId)) {
+                        popUpTo(Screen.Orders.route)
+                    }
+                }
+            )
         }
 
         // Clients

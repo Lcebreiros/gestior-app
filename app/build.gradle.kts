@@ -118,6 +118,7 @@ dependencies {
 
     // Accompanist
     implementation(libs.accompanist.systemuicontroller)
+    implementation(libs.accompanist.swiperefresh)
 
     // Testing
     testImplementation(libs.junit)

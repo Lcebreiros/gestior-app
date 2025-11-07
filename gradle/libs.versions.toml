@@ -79,6 +79,7 @@ androidx-camera-view = { group = "androidx.camera", name = "camera-view", versio
 
 # Accompanist (System UI Controller)
 accompanist-systemuicontroller = { group = "com.google.accompanist", name = "accompanist-systemuicontroller", version.ref = "accompanist" }
+accompanist-swiperefresh = { group = "com.google.accompanist", name = "accompanist-swiperefresh", version.ref = "accompanist" }
 
 # Testing
 junit = { group = "junit", name = "junit", version.ref = "junit" }
