@@ -22,8 +22,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.gestior.domain.model.Order
 import com.example.gestior.util.toDateFormatted
 import com.example.gestior.util.toCurrencyString
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -82,62 +80,56 @@ fun OrdersListScreen(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
-            // Orders list with pull to refresh
-            SwipeRefresh(
-                state = rememberSwipeRefreshState(state.isRefreshing),
-                onRefresh = viewModel::refresh,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                when {
-                    state.isLoading && state.orders.isEmpty() -> {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator()
+            // Orders list
+            when {
+                state.isLoading && state.orders.isEmpty() -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+
+                state.orders.isEmpty() -> {
+                    EmptyOrdersView(
+                        modifier = Modifier.fillMaxSize(),
+                        onCreateOrder = onNavigateToCreate
+                    )
+                }
+
+                else -> {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(state.orders) { order ->
+                            OrderCard(
+                                order = order,
+                                onClick = { onNavigateToDetail(order.id) }
+                            )
                         }
-                    }
 
-                    state.orders.isEmpty() -> {
-                        EmptyOrdersView(
-                            modifier = Modifier.fillMaxSize(),
-                            onCreateOrder = onNavigateToCreate
-                        )
-                    }
-
-                    else -> {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            items(state.orders) { order ->
-                                OrderCard(
-                                    order = order,
-                                    onClick = { onNavigateToDetail(order.id) }
-                                )
-                            }
-
-                            // Load more indicator
-                            if (state.isLoading && state.orders.isNotEmpty()) {
-                                item {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(16.dp),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        CircularProgressIndicator()
-                                    }
+                        // Load more indicator
+                        if (state.isLoading && state.orders.isNotEmpty()) {
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
                                 }
                             }
+                        }
 
-                            // Load next page trigger
-                            if (state.hasMorePages && !state.isLoading) {
-                                item {
-                                    LaunchedEffect(Unit) {
-                                        viewModel.loadNextPage()
-                                    }
+                        // Load next page trigger
+                        if (state.hasMorePages && !state.isLoading) {
+                            item {
+                                LaunchedEffect(Unit) {
+                                    viewModel.loadNextPage()
                                 }
                             }
                         }
