@@ -1,48 +1,40 @@
 package com.example.gestior.di
 
-import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.preferencesDataStore
-import com.example.gestior.data.remote.AuthInterceptor
-import com.example.gestior.data.remote.TokenProvider
-import com.example.gestior.data.remote.api.AuthApi
-import com.example.gestior.data.remote.api.ClientApi
-import com.example.gestior.data.remote.api.OrderApi
-import com.example.gestior.data.remote.api.ProductApi
-import com.example.gestior.util.Constants
-import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import com.example.gestior.data.local.TokenManager
+import com.example.gestior.data.remote.*
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import kotlinx.serialization.json.Json
-import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
-
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = Constants.PREFERENCES_NAME)
 
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
+    // TODO: Cambia esta URL a tu servidor local o remoto
+    private const val BASE_URL = "http://10.0.2.2:8000/api/" // Para emulador Android
+    // private const val BASE_URL = "http://localhost:8000/api/" // Para dispositivo físico en la misma red
+    // private const val BASE_URL = "https://tu-dominio.com/api/" // Para producción
+
     @Provides
     @Singleton
-    fun provideJson(): Json = Json {
-        ignoreUnknownKeys = true
-        isLenient = true
-        encodeDefaults = true
-        prettyPrint = true
+    fun provideGson(): Gson {
+        return GsonBuilder()
+            .setLenient()
+            .create()
     }
 
     @Provides
     @Singleton
-    fun provideLoggingInterceptor(): HttpLoggingInterceptor {
+    fun provideHttpLoggingInterceptor(): HttpLoggingInterceptor {
         return HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
@@ -50,60 +42,62 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    fun provideAuthInterceptor(tokenManager: TokenManager): AuthInterceptor {
+        return AuthInterceptor(tokenManager)
+    }
+
+    @Provides
+    @Singleton
     fun provideOkHttpClient(
-        loggingInterceptor: HttpLoggingInterceptor,
-        authInterceptor: AuthInterceptor
+        authInterceptor: AuthInterceptor,
+        loggingInterceptor: HttpLoggingInterceptor
     ): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(authInterceptor)
             .addInterceptor(loggingInterceptor)
-            .connectTimeout(Constants.API_TIMEOUT, TimeUnit.SECONDS)
-            .readTimeout(Constants.API_TIMEOUT, TimeUnit.SECONDS)
-            .writeTimeout(Constants.API_TIMEOUT, TimeUnit.SECONDS)
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
             .build()
     }
 
     @Provides
     @Singleton
-    fun provideRetrofit(
-        okHttpClient: OkHttpClient,
-        json: Json
-    ): Retrofit {
-        val contentType = "application/json".toMediaType()
+    fun provideRetrofit(okHttpClient: OkHttpClient, gson: Gson): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(Constants.BASE_URL)
+            .baseUrl(BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(json.asConverterFactory(contentType))
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
     }
 
     @Provides
     @Singleton
-    fun provideAuthApi(retrofit: Retrofit): AuthApi {
-        return retrofit.create(AuthApi::class.java)
+    fun provideAuthService(retrofit: Retrofit): AuthService {
+        return retrofit.create(AuthService::class.java)
     }
 
     @Provides
     @Singleton
-    fun provideProductApi(retrofit: Retrofit): ProductApi {
-        return retrofit.create(ProductApi::class.java)
+    fun provideProductService(retrofit: Retrofit): ProductService {
+        return retrofit.create(ProductService::class.java)
     }
 
     @Provides
     @Singleton
-    fun provideOrderApi(retrofit: Retrofit): OrderApi {
-        return retrofit.create(OrderApi::class.java)
+    fun provideOrderService(retrofit: Retrofit): OrderService {
+        return retrofit.create(OrderService::class.java)
     }
 
     @Provides
     @Singleton
-    fun provideClientApi(retrofit: Retrofit): ClientApi {
-        return retrofit.create(ClientApi::class.java)
+    fun provideClientService(retrofit: Retrofit): ClientService {
+        return retrofit.create(ClientService::class.java)
     }
 
     @Provides
     @Singleton
-    fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
-        return context.dataStore
+    fun providePaymentMethodService(retrofit: Retrofit): PaymentMethodService {
+        return retrofit.create(PaymentMethodService::class.java)
     }
 }

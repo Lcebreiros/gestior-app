@@ -4,73 +4,47 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt.android)
-    alias(libs.plugins.ksp)
+    id("kotlin-kapt")
 }
 
 android {
     namespace = "com.example.gestior"
-    compileSdk = 35
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.gestior"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 34
         versionCode = 1
-        versionName = "1.0.0"
+        versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        vectorDrawables {
-            useSupportLibrary = true
-        }
     }
 
     buildTypes {
-        debug {
-            isMinifyEnabled = false
-            isDebuggable = true
-            applicationIdSuffix = ".debug"
-            versionNameSuffix = "-debug"
-        }
         release {
-            isMinifyEnabled = true
-            isShrinkResources = true
+            isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
     }
-
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
-
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = "11"
     }
-
     buildFeatures {
         compose = true
-        buildConfig = true
-    }
-
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
     }
 }
 
 dependencies {
-    // Core
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.lifecycle.runtime.compose)
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
-
-    // Compose
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
@@ -79,48 +53,33 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.icons.extended)
 
-    // Navigation
-    implementation(libs.androidx.navigation.compose)
-
-    // Hilt
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.android.compiler)
-    implementation(libs.androidx.hilt.navigation.compose)
-
-    // Retrofit & OkHttp
+    // Retrofit for API calls
     implementation(libs.retrofit)
-    implementation(libs.retrofit.converter.kotlinx.serialization)
+    implementation(libs.retrofit.converter.gson)
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging.interceptor)
 
-    // Room
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    ksp(libs.androidx.room.compiler)
+    // Coil for image loading
+    implementation(libs.coil.compose)
 
-    // Kotlinx Serialization
+    // Navigation
+    implementation(libs.androidx.navigation.compose)
+
+    // ViewModel
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+
+    // Kotlin Serialization
     implementation(libs.kotlinx.serialization.json)
 
     // DataStore
     implementation(libs.androidx.datastore.preferences)
 
-    // Coil (Image Loading)
-    implementation(libs.coil.compose)
-    implementation(libs.coil.network.okhttp)
+    // Hilt for Dependency Injection
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.android.compiler)
+    implementation(libs.hilt.navigation.compose)
 
-    // Barcode Scanning
-    implementation(libs.play.services.mlkit.barcode.scanning)
-
-    // CameraX
-    implementation(libs.androidx.camera.camera2)
-    implementation(libs.androidx.camera.lifecycle)
-    implementation(libs.androidx.camera.view)
-
-    // Accompanist
-    implementation(libs.accompanist.systemuicontroller)
-    implementation(libs.accompanist.swiperefresh)
-
-    // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
