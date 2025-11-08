@@ -2,6 +2,8 @@ package com.example.gestior.di
 
 import com.example.gestior.data.local.TokenManager
 import com.example.gestior.data.remote.*
+import com.example.gestior.data.remote.api.*
+import com.example.gestior.util.Constants
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
@@ -18,11 +20,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-
-    // TODO: Cambia esta URL a tu servidor local o remoto
-    private const val BASE_URL = "http://10.0.2.2:8000/api/" // Para emulador Android
-    // private const val BASE_URL = "http://localhost:8000/api/" // Para dispositivo físico en la misma red
-    // private const val BASE_URL = "https://tu-dominio.com/api/" // Para producción
 
     @Provides
     @Singleton
@@ -55,9 +52,9 @@ object NetworkModule {
         return OkHttpClient.Builder()
             .addInterceptor(authInterceptor)
             .addInterceptor(loggingInterceptor)
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
+            .connectTimeout(Constants.API_TIMEOUT, TimeUnit.SECONDS)
+            .readTimeout(Constants.API_TIMEOUT, TimeUnit.SECONDS)
+            .writeTimeout(Constants.API_TIMEOUT, TimeUnit.SECONDS)
             .build()
     }
 
@@ -65,7 +62,7 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient, gson: Gson): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(Constants.BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
@@ -73,31 +70,25 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideAuthService(retrofit: Retrofit): AuthService {
-        return retrofit.create(AuthService::class.java)
+    fun provideAuthApi(retrofit: Retrofit): AuthApi {
+        return retrofit.create(AuthApi::class.java)
     }
 
     @Provides
     @Singleton
-    fun provideProductService(retrofit: Retrofit): ProductService {
-        return retrofit.create(ProductService::class.java)
+    fun provideProductApi(retrofit: Retrofit): ProductApi {
+        return retrofit.create(ProductApi::class.java)
     }
 
     @Provides
     @Singleton
-    fun provideOrderService(retrofit: Retrofit): OrderService {
-        return retrofit.create(OrderService::class.java)
+    fun provideOrderApi(retrofit: Retrofit): OrderApi {
+        return retrofit.create(OrderApi::class.java)
     }
 
     @Provides
     @Singleton
-    fun provideClientService(retrofit: Retrofit): ClientService {
-        return retrofit.create(ClientService::class.java)
-    }
-
-    @Provides
-    @Singleton
-    fun providePaymentMethodService(retrofit: Retrofit): PaymentMethodService {
-        return retrofit.create(PaymentMethodService::class.java)
+    fun provideClientApi(retrofit: Retrofit): ClientApi {
+        return retrofit.create(ClientApi::class.java)
     }
 }
