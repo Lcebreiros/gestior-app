@@ -33,7 +33,6 @@ data class Order(
     fun isDraft(): Boolean = status == OrderStatus.DRAFT.value
     fun isCompleted(): Boolean = status == OrderStatus.COMPLETED.value
     fun isCanceled(): Boolean = status == OrderStatus.CANCELED.value
-    fun isScheduled(): Boolean = status == OrderStatus.SCHEDULED.value
 
     fun getStatusColor(): String {
         return when (status) {
