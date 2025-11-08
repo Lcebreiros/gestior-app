@@ -107,7 +107,7 @@ fun CreateOrderScreen(
                                 tint = MaterialTheme.colorScheme.onSecondaryContainer
                             )
                             Text(
-                                text = state.clientName,
+                                text = state.clientName!!,
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSecondaryContainer
                             )

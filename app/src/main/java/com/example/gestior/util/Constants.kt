@@ -2,7 +2,7 @@ package com.example.gestior.util
 
 object Constants {
     // API Configuration
-    const val BASE_URL = "https://rellenitosrevelados.com/" // Base URL de la API de rellenito-alfajores
+    const val BASE_URL = "https://gestior.com.ar/api/"
     const val API_TIMEOUT = 30L // segundos
 
     // DataStore Keys
